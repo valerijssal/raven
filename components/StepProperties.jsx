@@ -97,7 +97,7 @@ function PropertySelector({ personData, properties, onChange }) {
         className={styles.propSearch}
       />
 
-      <span style={{ fontSize: 12, color: "var(--text2)" }}>
+      <span style={{ fontSize: 12, color: "var(--text2)", display: "block", marginBottom: 8 }}>
         {filtered.length} properties · {selected.length} selected
       </span>
 

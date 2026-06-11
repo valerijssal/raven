@@ -348,6 +348,8 @@
   background: var(--bg);
   color: var(--text);
   box-sizing: border-box;
+  margin-top: 12px;
+  margin-bottom: 8px;
 }
 
 .propSearch:focus {
