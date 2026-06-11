@@ -23,11 +23,11 @@ export default function SignIn() {
           textAlign: "center",
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
-            <RavenIcon size={20} />
-            <span style={{ fontSize: 18, fontWeight: 500 }}>Raven</span>
+            <RavenIcon size={36} />
+            <span style={{ fontSize: 14, fontWeight: 500 }}>Raven</span>
           </div>
           <p style={{ fontSize: 13, color: "#6b6b65", marginBottom: 28 }}>
-            CASS mapping requests
+            Raven finds the right path for every mapping request.
           </p>
           <button
             onClick={() => signIn("google", { callbackUrl: "/" })}
@@ -55,9 +55,7 @@ export default function SignIn() {
             </svg>
             Sign in with Google
           </button>
-          <p style={{ fontSize: 12, color: "#9b9b93", marginTop: 16 }}>
-            @id.thesoul.io accounts only
-          </p>
+          
         </div>
       </div>
     </>

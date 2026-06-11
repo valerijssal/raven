@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import styles from "./Steps.module.css";
 
-const PRESET_ROLES = ["DM", "SMM", "BI", "Creator", "Producer", "Editor"];
+const PRESET_ROLES = ["EP", "LAC", "LP", "CP", "EDM", "LDM", "DM", "SMM PO", "SMM CDN"];
 
 function PersonRow({ person, index, total, employees, onChange, onRemove }) {
   const [search, setSearch] = useState("");
