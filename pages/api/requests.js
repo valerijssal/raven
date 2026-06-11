@@ -37,7 +37,8 @@ export default async function handler(req, res) {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
 
-    const taskName = `[CASS] ${requestType} — ${(people || []).map(p => p.name).join(", ")}`;
+    const peopleNames = (people || []).map(p => p.name);
+    const taskName = `[CASS] ${requestType} — ${peopleNames.length > 1 ? "multiple employees" : peopleNames[0] || ""}`;
 
     const personSections = (people || []).map(p => {
       const props = (p.selectedUuids || []).map(uuid => propMap[uuid]).filter(Boolean);
