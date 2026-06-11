@@ -66,6 +66,7 @@ export default function Home() {
 
   async function submit() {
     setSubmitting(true);
+    setError(null);
     try {
       const res = await fetch("/api/requests", {
         method: "POST",
@@ -73,12 +74,15 @@ export default function Home() {
         body: JSON.stringify({
           requestType: form.requestType,
           notes: form.notes,
-          people: form.people.map(p => ({ name: p.employee.display, roles: p.roles })),
+          people: form.people
+            .filter(p => p.employee)
+            .map(p => ({ name: p.employee.display, roles: p.roles })),
           selectedUuids: form.selected,
           excludeMode: form.excludeMode,
         }),
       });
-      if (!res.ok) throw new Error("Submit failed");
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Submit failed");
       setSubmitted(true);
     } catch (err) {
       setError(err.message);
