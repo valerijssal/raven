@@ -35,16 +35,18 @@ export default async function handler(req, res) {
 
     const taskName = `[CASS] ${requestType} — ${(people || []).map(p => p.name).join(", ")}`;
 
+    const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     const peopleLines = (people || []).map(p =>
-      `- ${p.name} — ${p.roles.join(", ")}`
+      `- ${esc(p.name)} - ${p.roles.map(esc).join(", ")}`
     ).join("\n");
 
-    const propLines2 = matchedProps.map(p => `- ${p.title}`).join("\n");
+    const propLines2 = matchedProps.map(p => `- ${esc(p.title)}`).join("\n");
 
     const notes_text = [
-      `Request type: ${requestType}`,
-      `Submitted by: ${session.user.email}`,
-      notes ? `Notes: ${notes}` : "",
+      `Request type: ${esc(requestType)}`,
+      `Submitted by: ${esc(session.user.email)}`,
+      notes ? `Notes: ${esc(notes)}` : "",
       "",
       "People:",
       peopleLines,
