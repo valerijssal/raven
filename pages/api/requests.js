@@ -40,7 +40,6 @@ async function createAsanaTask(requestData, submittedBy) {
         name: taskName,
         notes: description,
         projects: [ASANA_PROJECT_ID],
-        memberships: [{ project: ASANA_PROJECT_ID, section: ASANA_SECTION_ID }],
       }
     }),
   });
@@ -78,13 +77,9 @@ export default async function handler(req, res) {
 
   if (error) return res.status(500).json({ error: error.message });
 
-  // Create Asana task
-  try {
-    await createAsanaTask({ requestType, notes, people, selectedUuids, excludeMode }, session.user.email);
-  } catch (asanaErr) {
-    console.error("Asana task creation failed:", asanaErr.message);
-    // Don't fail the whole request — Supabase save succeeded
-  }
+  // Create Asana task (best-effort, never blocks submission)
+  createAsanaTask({ requestType, notes, people, selectedUuids, excludeMode }, session.user.email)
+    .catch(err => console.error("Asana task creation failed:", err.message));
 
   res.status(200).json(data);
 }
