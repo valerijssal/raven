@@ -35,20 +35,23 @@ export default async function handler(req, res) {
 
     const taskName = `[CASS] ${requestType} — ${(people || []).map(p => p.name).join(", ")}`;
 
-    const peopleHtml = (people || []).map(p =>
-      `<li><strong>${p.name}</strong> — ${p.roles.join(", ")}</li>`
-    ).join("");
+    const peopleLines = (people || []).map(p =>
+      `- ${p.name} — ${p.roles.join(", ")}`
+    ).join("\n");
 
-    const propsHtml = matchedProps.map(p => `<li>${p.title}</li>`).join("");
+    const propLines2 = matchedProps.map(p => `- ${p.title}`).join("\n");
 
-    const html_text = `<body>`
-      + `<strong>Request type:</strong> ${requestType}<br>`
-      + `<strong>Submitted by:</strong> ${session.user.email}<br>`
-      + (notes ? `<strong>Notes:</strong> ${notes}<br>` : "")
-      + `<br><strong>People:</strong><ul>${peopleHtml}</ul>`
-      + `<strong>${excludeMode ? "Properties to EXCLUDE" : "Properties"} (${matchedProps.length}):</strong>`
-      + `<ul>${propsHtml}</ul>`
-      + `</body>`;
+    const notes_text = [
+      `Request type: ${requestType}`,
+      `Submitted by: ${session.user.email}`,
+      notes ? `Notes: ${notes}` : "",
+      "",
+      "People:",
+      peopleLines,
+      "",
+      `${excludeMode ? "Properties to EXCLUDE" : "Properties"} (${matchedProps.length}):`,
+      propLines2,
+    ].filter(l => l !== undefined).join("\n");
 
     try {
       const asanaRes = await fetch("https://app.asana.com/api/1.0/tasks", {
@@ -58,7 +61,7 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          data: { name: taskName, html_notes: html_text, projects: ["1210527837423031"] }
+          data: { name: taskName, notes: notes_text, projects: ["1210527837423031"] }
         }),
       });
       if (!asanaRes.ok) {
