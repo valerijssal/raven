@@ -50,16 +50,24 @@ export default async function handler(req, res) {
       + `<ul>${propsHtml}</ul>`
       + `</body>`;
 
-    fetch("https://app.asana.com/api/1.0/tasks", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.ASANA_PAT}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        data: { name: taskName, html_notes: html_text, projects: ["1210527837423031"] }
-      }),
-    }).catch(err => console.error("Asana error:", err.message));
+    try {
+      const asanaRes = await fetch("https://app.asana.com/api/1.0/tasks", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.ASANA_PAT}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: { name: taskName, html_notes: html_text, projects: ["1210527837423031"] }
+        }),
+      });
+      if (!asanaRes.ok) {
+        const errText = await asanaRes.text();
+        console.error("Asana error:", errText);
+      }
+    } catch (err) {
+      console.error("Asana fetch error:", err.message);
+    }
   }
 
   res.status(200).json(data);
