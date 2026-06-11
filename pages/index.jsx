@@ -123,7 +123,7 @@ export default function Home() {
         <div className={styles.card}>
           <div className={styles.header}>
             <div className={styles.brand}>
-              <RavenIcon size={18} />
+              <RavenIcon size={26} />
               <h1 className={styles.heading}>Raven</h1>
             </div>
             <div className={styles.headerRight}>

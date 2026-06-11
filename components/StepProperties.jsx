@@ -105,7 +105,7 @@ export default function StepProperties({ data, properties, onChange }) {
       {/* Controls row */}
       <div className={styles.propControls}>
         <span className={styles.propCount}>{filtered.length} properties · {selected.length} selected</span>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className={styles.propActions}>
           <label className={styles.checkLabel}>
             <input type="checkbox" checked={excludeMode} onChange={e => onChange({ excludeMode: e.target.checked })} />
             Exclude mode
