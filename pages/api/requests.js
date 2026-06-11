@@ -60,16 +60,20 @@ export default async function handler(req, res) {
 
   const { requestType, notes, people, selectedUuids, excludeMode } = req.body;
 
+  // Validate UUIDs
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const validUuids = (selectedUuids || []).filter(u => uuidRegex.test(u));
+
   // Save to Supabase
   const { data, error } = await supabaseAdmin
     .from("requests")
     .insert({
       submitted_by: session.user.email,
       request_type: requestType,
-      notes,
-      people,
-      property_uuids: selectedUuids,
-      exclude_mode: excludeMode,
+      notes: notes || null,
+      people: people || [],
+      property_uuids: validUuids,
+      exclude_mode: excludeMode || false,
       status: "pending",
     })
     .select()
