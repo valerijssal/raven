@@ -375,3 +375,39 @@
   background: var(--border2);
   display: inline-block;
 }
+
+/* Per-person property tabs */
+.personTabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.personTab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.personTabOn {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.personTabBadge {
+  background: #4caf50;
+  color: white;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+}

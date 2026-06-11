@@ -1,9 +1,8 @@
 import styles from "./Steps.module.css";
 
 export default function StepReview({ data, properties }) {
-  const { requestType, notes, people, selected, excludeMode } = data;
-
-  const selectedProps = properties.filter(p => selected.includes(p.uuid));
+  const { requestType, notes, people } = data;
+  const propMap = Object.fromEntries(properties.map(p => [p.uuid, p]));
 
   return (
     <div className={styles.step}>
@@ -13,26 +12,25 @@ export default function StepReview({ data, properties }) {
         {notes && <div className={styles.reviewNote}>{notes}</div>}
       </div>
 
-      <div className={styles.reviewSection}>
-        <div className={styles.reviewLabel}>People ({people.length})</div>
-        {people.map((p, i) => (
-          <div key={i} className={styles.reviewPerson}>
-            <span className={styles.reviewName}>{p.employee?.display}</span>
-            <span className={styles.reviewRoles}>{p.roles.join(", ")}</span>
+      {people.map((p, i) => {
+        const selectedProps = (p.selected || []).map(uuid => propMap[uuid]).filter(Boolean);
+        return (
+          <div key={i} className={styles.reviewSection}>
+            <div className={styles.reviewLabel}>
+              {p.employee?.display}
+              <span className={styles.reviewRoles}> · {p.roles.join(", ")}</span>
+            </div>
+            <div className={styles.reviewPropList}>
+              {selectedProps.length === 0
+                ? <div className={styles.reviewProp} style={{ color: "var(--text2)" }}>No properties selected</div>
+                : selectedProps.map(prop => (
+                    <div key={prop.uuid} className={styles.reviewProp}>{prop.title}</div>
+                  ))
+              }
+            </div>
           </div>
-        ))}
-      </div>
-
-      <div className={styles.reviewSection}>
-        <div className={styles.reviewLabel}>
-          Properties ({selectedProps.length}) — {excludeMode ? "exclude" : "include"}
-        </div>
-        <div className={styles.reviewPropList}>
-          {selectedProps.map(p => (
-            <div key={p.uuid} className={styles.reviewProp}>{p.title}</div>
-          ))}
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }

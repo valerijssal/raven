@@ -11,21 +11,22 @@ import styles from "../styles/Home.module.css";
 
 const STEPS = ["Details", "People", "Properties", "Review"];
 
+function initPerson() {
+  return { employee: null, roles: [], customInput: "", selected: [], bgFilter: "", bfFilter: "", platFilter: "", langFilter: "" };
+}
+
 function initState() {
   return {
     requestType: "",
     notes: "",
-    people: [{ employee: null, roles: [], customInput: "" }],
-    bgFilter: "", bfFilter: "", platFilter: "", langFilter: "",
-    selected: [],
-    excludeMode: false,
+    people: [initPerson()],
   };
 }
 
 function canAdvance(step, state) {
   if (step === 0) return state.requestType !== "";
   if (step === 1) return state.people.every(p => p.employee !== null && p.roles.length > 0);
-  if (step === 2) return state.selected.length > 0;
+  if (step === 2) return state.people.every(p => (p.selected || []).length > 0);
   return true;
 }
 
@@ -76,9 +77,11 @@ export default function Home() {
           notes: form.notes,
           people: form.people
             .filter(p => p.employee)
-            .map(p => ({ name: p.employee.display, roles: p.roles })),
-          selectedUuids: form.selected,
-          excludeMode: form.excludeMode,
+            .map(p => ({
+              name: p.employee.display,
+              roles: p.roles,
+              selectedUuids: p.selected || [],
+            })),
         }),
       });
       const json = await res.json();
@@ -91,6 +94,21 @@ export default function Home() {
   }
 
   function reset() { setForm(initState()); setStep(0); setSubmitted(false); setError(null); }
+
+  // When moving from People to Properties, ensure new people have initPerson props
+  function next2() {
+    if (!canAdvance(step, form)) return;
+    if (step === 1) {
+      setForm(prev => ({
+        ...prev,
+        people: prev.people.map(p => ({
+          ...initPerson(),
+          ...p,
+        })),
+      }));
+    }
+    setStep(s => s + 1);
+  }
 
   if (status === "loading" || loading) return (
     <div className={styles.loader}><div className={styles.spinner} /></div>
@@ -153,7 +171,7 @@ export default function Home() {
 
           <div className={styles.body}>
             {step === 0 && <StepDetails data={form} onChange={update} />}
-            {step === 1 && <StepPeople data={form} employees={employees} onChange={update} />}
+            {step === 1 && <StepPeople data={form} employees={employees} onChange={update} initPerson={initPerson} />}
             {step === 2 && <StepProperties data={form} properties={properties} onChange={update} />}
             {step === 3 && <StepReview data={form} properties={properties} />}
           </div>
@@ -161,7 +179,7 @@ export default function Home() {
           <div className={styles.nav}>
             <button className={styles.btnSecondary} onClick={back} disabled={step === 0}>Back</button>
             {step < 3
-              ? <button className={styles.btnPrimary} onClick={next} disabled={!ok}>Continue</button>
+              ? <button className={styles.btnPrimary} onClick={step === 1 ? next2 : next} disabled={!ok}>Continue</button>
               : <button className={styles.btnPrimary} onClick={submit} disabled={submitting}>
                   {submitting ? "Submitting…" : "Submit request"}
                 </button>

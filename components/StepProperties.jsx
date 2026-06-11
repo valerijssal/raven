@@ -3,8 +3,8 @@ import styles from "./Steps.module.css";
 
 const uniq = arr => [...new Set(arr.filter(Boolean))].sort();
 
-export default function StepProperties({ data, properties, onChange }) {
-  const { bgFilter, bfFilter, platFilter, langFilter, selected, excludeMode } = data;
+function PropertySelector({ personData, properties, onChange }) {
+  const { bgFilter = "", bfFilter = "", platFilter = "", langFilter = "", selected = [] } = personData;
   const [search, setSearch] = useState("");
 
   const brandGroups = useMemo(() => uniq(properties.map(p => p.brandGroup)), [properties]);
@@ -48,9 +48,6 @@ export default function StepProperties({ data, properties, onChange }) {
     onChange({ selected: has ? selected.filter(x => x !== uuid) : [...selected, uuid] });
   }
 
-  function selectAll() { onChange({ selected: filtered.map(p => p.uuid) }); }
-  function clearAll() { onChange({ selected: [] }); }
-
   function setFilter(key, val) {
     const patch = { [key]: val };
     if (key === "bgFilter") { patch.bfFilter = ""; patch.platFilter = ""; patch.langFilter = ""; }
@@ -60,8 +57,7 @@ export default function StepProperties({ data, properties, onChange }) {
   }
 
   return (
-    <div className={styles.step}>
-      {/* Filters */}
+    <div>
       <div className={styles.filters}>
         <div className={styles.filterGroup}>
           <label className={styles.label}>Brand group</label>
@@ -93,7 +89,6 @@ export default function StepProperties({ data, properties, onChange }) {
         </div>
       </div>
 
-      {/* Search */}
       <input
         type="text"
         value={search}
@@ -102,24 +97,17 @@ export default function StepProperties({ data, properties, onChange }) {
         className={styles.propSearch}
       />
 
-      {/* Controls row */}
-      <span style={{ fontSize: 12, color: "var(--text2)" }}>{filtered.length} properties · {selected.length} selected</span>
+      <span style={{ fontSize: 12, color: "var(--text2)" }}>
+        {filtered.length} properties · {selected.length} selected
+      </span>
 
-      {/* Property list */}
       <div className={styles.propList}>
-        {filtered.length === 0 && (
-          <div className={styles.empty}>No properties match.</div>
-        )}
+        {filtered.length === 0 && <div className={styles.empty}>No properties match.</div>}
         {filtered.map(p => {
           const on = selected.includes(p.uuid);
           return (
             <label key={p.uuid} className={`${styles.propRow} ${on ? styles.propRowOn : ""}`}>
-              <input
-                type="checkbox"
-                checked={on}
-                onChange={() => toggleProp(p.uuid)}
-                className={styles.hiddenCheck}
-              />
+              <input type="checkbox" checked={on} onChange={() => toggleProp(p.uuid)} className={styles.hiddenCheck} />
               <div className={`${styles.checkBox} ${on ? styles.checkBoxOn : ""}`}>
                 {on && <span className={styles.checkMark}>✓</span>}
               </div>
@@ -129,6 +117,46 @@ export default function StepProperties({ data, properties, onChange }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+export default function StepProperties({ data, properties, onChange }) {
+  const [activeTab, setActiveTab] = useState(0);
+  const people = data.people || [];
+
+  function updatePersonProps(i, patch) {
+    const updated = people.map((p, idx) => idx === i ? { ...p, ...patch } : p);
+    onChange({ people: updated });
+  }
+
+  return (
+    <div className={styles.step}>
+      {/* Person tabs */}
+      {people.length > 1 && (
+        <div className={styles.personTabs}>
+          {people.map((p, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`${styles.personTab} ${i === activeTab ? styles.personTabOn : ""}`}
+              onClick={() => setActiveTab(i)}
+            >
+              {p.employee?.display?.split(" ")[0] || `Person ${i + 1}`}
+              {(p.selected || []).length > 0 && (
+                <span className={styles.personTabBadge}>{p.selected.length}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <PropertySelector
+        key={activeTab}
+        personData={people[activeTab] || {}}
+        properties={properties}
+        onChange={patch => updatePersonProps(activeTab, patch)}
+      />
     </div>
   );
 }

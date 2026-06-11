@@ -3,14 +3,17 @@ import { authOptions } from "./auth/[...nextauth]";
 import { supabaseAdmin } from "../../lib/supabase";
 import PROPERTIES from "../../lib/properties";
 
+const propMap = Object.fromEntries(PROPERTIES.map(p => [p.uuid, p]));
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
   const session = await getServerSession(req, res, authOptions);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
 
-  const { requestType, notes, people, selectedUuids, excludeMode } = req.body;
+  const { requestType, notes, people } = req.body;
 
+  // Save to Supabase — store people with their individual selectedUuids
   const { data, error } = await supabaseAdmin
     .from("requests")
     .insert({
@@ -18,42 +21,40 @@ export default async function handler(req, res) {
       request_type: requestType,
       notes: notes || null,
       people: people || [],
-      property_uuids: selectedUuids || [],
-      exclude_mode: excludeMode || false,
+      property_uuids: (people || []).flatMap(p => p.selectedUuids || []),
+      exclude_mode: false,
       status: "pending",
     })
     .select()
     .single();
 
-  if (error) return res.status(500).json({ error: error.message, code: error.code, details: error.details });
+  if (error) return res.status(500).json({ error: error.message, code: error.code });
 
-  // Fire Asana task async after response (best-effort)
+  // Create Asana task
   if (process.env.ASANA_PAT) {
-    const uuidSet = new Set(selectedUuids || []);
-    const matchedProps = PROPERTIES.filter(p => uuidSet.has(p.uuid));
-    const propLines = matchedProps.map(p => `• ${p.title}`).join("\n");
+    const esc = s => String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
     const taskName = `[CASS] ${requestType} — ${(people || []).map(p => p.name).join(", ")}`;
 
-    const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-    const peopleLines = (people || []).map(p =>
-      `- ${esc(p.name)} - ${p.roles.map(esc).join(", ")}`
-    ).join("\n");
-
-    const propLines2 = matchedProps.map(p => `- ${esc(p.title)}`).join("\n");
+    const personSections = (people || []).map(p => {
+      const props = (p.selectedUuids || []).map(uuid => propMap[uuid]).filter(Boolean);
+      return [
+        `${esc(p.name)} (${p.roles.map(esc).join(", ")})`,
+        `Properties (${props.length}):`,
+        ...props.map(prop => `- ${esc(prop.title)}`),
+      ].join("\n");
+    }).join("\n\n");
 
     const notes_text = [
       `Request type: ${esc(requestType)}`,
       `Submitted by: ${esc(session.user.email)}`,
       notes ? `Notes: ${esc(notes)}` : "",
       "",
-      "People:",
-      peopleLines,
-      "",
-      `${excludeMode ? "Properties to EXCLUDE" : "Properties"} (${matchedProps.length}):`,
-      propLines2,
-    ].filter(l => l !== undefined).join("\n");
+      personSections,
+    ].filter(Boolean).join("\n");
 
     try {
       const asanaRes = await fetch("https://app.asana.com/api/1.0/tasks", {
