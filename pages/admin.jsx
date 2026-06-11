@@ -45,7 +45,7 @@ export default function Admin() {
       <div className={styles.page}>
         <div className={styles.topbar}>
           <div className={styles.brand}>
-            <RavenIcon size={26} />
+            <RavenIcon size={32} />
             <span>Raven</span>
             <span className={styles.adminBadge}>Admin</span>
           </div>
