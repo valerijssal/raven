@@ -103,9 +103,9 @@ export default function StepProperties({ data, properties, onChange }) {
       />
 
       {/* Controls row */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <span style={{ fontSize: 12, color: "var(--text2)" }}>{filtered.length} properties · {selected.length} selected</span>
-        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, cursor: "pointer" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, cursor: "pointer", width: "fit-content" }}>
           <input type="checkbox" checked={excludeMode} onChange={e => onChange({ excludeMode: e.target.checked })} />
           Exclude mode
         </label>
