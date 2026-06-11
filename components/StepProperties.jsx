@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import styles from "./Steps.module.css";
 
 const uniq = arr => [...new Set(arr.filter(Boolean))].sort();
 
 export default function StepProperties({ data, properties, onChange }) {
   const { bgFilter, bfFilter, platFilter, langFilter, selected, excludeMode } = data;
+  const [search, setSearch] = useState("");
 
   const brandGroups = useMemo(() => uniq(properties.map(p => p.brandGroup)), [properties]);
   const brandFamilies = useMemo(() => {
@@ -31,8 +32,16 @@ export default function StepProperties({ data, properties, onChange }) {
     if (bfFilter) b = b.filter(p => p.brandFamily === bfFilter);
     if (platFilter) b = b.filter(p => p.platform === platFilter);
     if (langFilter) b = b.filter(p => p.language === langFilter);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      b = b.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.brandFamily.toLowerCase().includes(q) ||
+        p.brandGroup.toLowerCase().includes(q)
+      );
+    }
     return b;
-  }, [properties, bgFilter, bfFilter, platFilter, langFilter]);
+  }, [properties, bgFilter, bfFilter, platFilter, langFilter, search]);
 
   function toggleProp(uuid) {
     const has = selected.includes(uuid);
@@ -84,6 +93,15 @@ export default function StepProperties({ data, properties, onChange }) {
         </div>
       </div>
 
+      {/* Search */}
+      <input
+        type="search"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search properties…"
+        className={styles.propSearch}
+      />
+
       {/* Controls row */}
       <div className={styles.propControls}>
         <span className={styles.propCount}>{filtered.length} properties · {selected.length} selected</span>
@@ -100,7 +118,7 @@ export default function StepProperties({ data, properties, onChange }) {
       {/* Property list */}
       <div className={styles.propList}>
         {filtered.length === 0 && (
-          <div className={styles.empty}>No properties match these filters.</div>
+          <div className={styles.empty}>No properties match.</div>
         )}
         {filtered.map(p => {
           const on = selected.includes(p.uuid);
