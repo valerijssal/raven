@@ -95,7 +95,7 @@ export default function StepProperties({ data, properties, onChange }) {
 
       {/* Search */}
       <input
-        type="search"
+        type="text"
         value={search}
         onChange={e => setSearch(e.target.value)}
         placeholder="Search properties…"
