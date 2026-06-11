@@ -182,26 +182,11 @@
   gap: 4px;
 }
 
-.propControls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 28px;
-}
 
-.propActions {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  flex-shrink: 0;
-}
 
-.propActions .checkLabel {
-  margin-right: 16px;
-  padding-right: 16px;
-  border-right: 1px solid var(--border2);
-}
+
+
+
 
 .propCount {
   font-size: 12px;
@@ -368,4 +353,25 @@
 .propSearch:focus {
   outline: none;
   border-color: var(--text);
+}
+
+.propControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.propActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.propDivider {
+  width: 1px;
+  height: 14px;
+  background: var(--border2);
+  display: inline-block;
 }

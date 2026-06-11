@@ -108,8 +108,9 @@ export default function StepProperties({ data, properties, onChange }) {
         <div className={styles.propActions}>
           <label className={styles.checkLabel}>
             <input type="checkbox" checked={excludeMode} onChange={e => onChange({ excludeMode: e.target.checked })} />
-            Exclude mode
+            <span>Exclude mode</span>
           </label>
+          <span className={styles.propDivider} />
           <button type="button" className={styles.textBtn} onClick={selectAll}>Select all</button>
           <button type="button" className={styles.textBtn} onClick={clearAll}>Clear</button>
         </div>
