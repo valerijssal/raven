@@ -65,7 +65,12 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          data: { name: taskName, notes: notes_text, projects: ["1210527837423031"] }
+          data: {
+            name: taskName,
+            notes: notes_text,
+            projects: ["1210527837423031"],
+            followers: [session.user.email],
+          }
         }),
       });
       if (!asanaRes.ok) {
