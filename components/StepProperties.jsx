@@ -148,13 +148,32 @@ function PropertySelector({ personData, properties, onChange }) {
       </div>
 
       {isFilterMode ? (
-        /* Filter mode — show summary */
-        <div style={{ padding: "12px 16px", background: "var(--bg2)", borderRadius: "var(--radius)", fontSize: 13 }}>
-          {selected.length === 0
-            ? <span style={{ color: "var(--text2)" }}>Set filters above to select properties automatically.</span>
-            : <span><strong>{selected.length}</strong> properties selected based on current filters.</span>
-          }
-        </div>
+        /* Filter mode — show pre-checked list with ability to exclude */
+        <>
+          <span style={{ fontSize: 12, color: "var(--text2)", display: "block", marginBottom: 8 }}>
+            {selected.length === 0
+              ? "Set filters above to select properties automatically."
+              : `${filtered.length} matched · ${selected.length} selected · ${filtered.length - selected.length} excluded`
+            }
+          </span>
+          {filtered.length > 0 && (
+            <div className={styles.propList}>
+              {filtered.map(p => {
+                const on = selected.includes(p.uuid);
+                return (
+                  <label key={p.uuid} className={`${styles.propRow} ${on ? styles.propRowOn : ""}`}>
+                    <input type="checkbox" checked={on} onChange={() => toggleProp(p.uuid)} className={styles.hiddenCheck} />
+                    <div className={`${styles.checkBox} ${on ? styles.checkBoxOn : ""}`}>
+                      {on && <span className={styles.checkMark}>✓</span>}
+                    </div>
+                    <span className={styles.propTitle}>{p.title}</span>
+                    <span className={styles.propMeta}>{p.brandGroup}</span>
+                  </label>
+                );
+              })}
+            </div>
+          )}
+        </>
       ) : (
         /* Individual mode — show list */
         <>
